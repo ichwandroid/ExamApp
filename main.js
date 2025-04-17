@@ -1,4 +1,5 @@
 const { app, BrowserWindow, session } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 
 let win;
@@ -61,6 +62,36 @@ function createWindow() {
       win.reload(); // Refresh jendela
     }
   });
+}
+
+// Tambahkan fungsi untuk menangani auto-update
+function setupAutoUpdater() {
+  autoUpdater.on('checking-for-update', () => {
+    console.log('Memeriksa pembaruan...');
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    console.log('Pembaruan tersedia:', info);
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('Tidak ada pembaruan:', info);
+  });
+
+  autoUpdater.on('error', (err) => {
+    console.error('Kesalahan saat memeriksa pembaruan:', err);
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    console.log(`Kecepatan: ${progress.bytesPerSecond} - ${progress.percent}% selesai`);
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    console.log('Pembaruan diunduh. Aplikasi akan restart untuk menerapkan pembaruan.');
+    autoUpdater.quitAndInstall(); // Restart aplikasi dan instal pembaruan
+  });
+
+  autoUpdater.checkForUpdatesAndNotify(); // Mulai proses pembaruan
 }
 
 app.whenReady().then(async () => {
