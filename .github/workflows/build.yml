@@ -29,10 +29,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build the app
-        env:
-          GH_TOKEN: ${{ secrets.EXAMAPP_TOKEN }}
-        run: npm run build --verbose
+      - name: Debug Build Process
+        run: |
+          echo "Checking build configuration..."
+          cat package.json
+          echo "Checking environment variables..."
+          env | grep GH_TOKEN || echo "GH_TOKEN is not set"
+          echo "Running build process..."
+          npm run build --verbose
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
