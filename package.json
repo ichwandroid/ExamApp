@@ -1,0 +1,23 @@
+{
+  "name": "secure-exam-browser",
+  "version": "1.0.2",
+  "description": "Aplikasi Secure Browser",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "author": "ichwanap_",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^25.9.8",
+    "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "appId": "com.example.secure-exam-browser",
+    "win": {
+      "target": "portable",
+      "icon": "assets/icon.ico"
+    }
+  }
+}

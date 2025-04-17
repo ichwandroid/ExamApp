@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Validasi Token</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .message {
+      text-align: center;
+      font-size: 16px;
+      color: #333;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      input, button {
+        font-size: 14px;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Validasi Token ASAT</h2>
+    <form id="validateForm">
+      <input type="text" id="tokenInput" placeholder="Masukkan Token" required>
+      <button type="submit">Cek Token</button>
+    </form>
+    <p id="message" class="message"></p>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyONj36jgb1ZgdPgMLVX3VrwK04P3kvJ25zyp4v3W639UzGaPxpeKtCPRkfZxRz5Ak/exec"; // Ganti dengan ID kamu
+
+    document.getElementById("validateForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const token = document.getElementById("tokenInput").value;
+      const message = document.getElementById("message");
+
+      message.innerText = "Memeriksa token...";
+
+      const res = await fetch(`${SCRIPT_URL}?action=check&token=${encodeURIComponent(token)}`);
+      const data = await res.json();
+
+      if (data.valid) {
+        message.innerText = `Token valid! Redirecting to link...`;
+        // Redirect ke link tujuan setelah token valid
+        setTimeout(() => {
+          window.location.href = data.link; // Redirect ke link yang diberikan oleh admin
+        }, 2000); // Tunggu 2 detik untuk memberikan pesan kepada pengguna
+      } else {
+        message.innerText = "Token tidak valid atau telah kedaluwarsa!";
+      }
+    });
+  </script>
+</body>
+</html>
