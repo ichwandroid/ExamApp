@@ -25,6 +25,8 @@ jobs:
         run: npm install
 
       - name: Build the app
+        env:
+          GH_TOKEN: ${{ secrets.EXAMAPP_TOKEN }}
         run: npm run build
 
       - name: Upload artifact
