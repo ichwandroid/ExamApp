@@ -1,8 +1,9 @@
-const { app, BrowserWindow, session } = require('electron');
-const { autoUpdater } = require('electron-updater');
+const { app, BrowserWindow, BrowserView, session } = require('electron');
 const path = require('path');
+const os = require('os'); // Tambahkan modul os
 
 let win;
+let wifiView;
 
 function createWindow() {
   win = new BrowserWindow({
@@ -19,6 +20,24 @@ function createWindow() {
     }
   });
 
+  // Tambahkan BrowserView untuk status WiFi
+  wifiView = new BrowserView({
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    }
+  });
+  win.setBrowserView(wifiView);
+
+  // Atur ukuran dan posisi BrowserView
+  const { width, height } = win.getBounds();
+  wifiView.setBounds({ x: width - 250, y: height - 30, width: 250, height: 30 });
+  wifiView.setAutoResize({ width: true, height: true });
+
+  // Muat file HTML untuk status WiFi
+  wifiView.webContents.loadFile(path.join(__dirname, 'wifi-status.html'));
+
+  // Muat konten utama (Google Form atau lainnya)
   win.loadFile('index.html');
 
   // Blok shortcut keluar & lainnya
@@ -52,46 +71,30 @@ function createWindow() {
     }
 
     // Alt+Q untuk keluar
-    if (input.alt && input.key.toLowerCase() === 'q') {
+    if (input.alt && input.key && input.key.toLowerCase() === 'q') {
       app.quit();
     }
-
+    
+    // Tekan tombol Windows untuk keluar
+    if (input.key && input.key.toLowerCase() === 'meta') {
+      app.quit();
+    }
+    
     // F5 untuk refresh
-    if (input.key === 'F5') {
+    if (input.control && input.key === 'F5') {
       event.preventDefault(); // Mencegah perilaku default
       win.reload(); // Refresh jendela
     }
   });
-}
 
-// Tambahkan fungsi untuk menangani auto-update
-function setupAutoUpdater() {
-  autoUpdater.on('checking-for-update', () => {
-    console.log('Memeriksa pembaruan...');
-  });
-
-  autoUpdater.on('update-available', (info) => {
-    console.log('Pembaruan tersedia:', info);
-  });
-
-  autoUpdater.on('update-not-available', (info) => {
-    console.log('Tidak ada pembaruan:', info);
-  });
-
-  autoUpdater.on('error', (err) => {
-    console.error('Kesalahan saat memeriksa pembaruan:', err);
-  });
-
-  autoUpdater.on('download-progress', (progress) => {
-    console.log(`Kecepatan: ${progress.bytesPerSecond} - ${progress.percent}% selesai`);
-  });
-
-  autoUpdater.on('update-downloaded', () => {
-    console.log('Pembaruan diunduh. Aplikasi akan restart untuk menerapkan pembaruan.');
-    autoUpdater.quitAndInstall(); // Restart aplikasi dan instal pembaruan
-  });
-
-  autoUpdater.checkForUpdatesAndNotify(); // Mulai proses pembaruan
+  // Kirim status WiFi ke BrowserView setiap 5 detik
+  setInterval(() => {
+    const networkInterfaces = os.networkInterfaces();
+    const isConnected = Object.values(networkInterfaces).some(ifaces =>
+      ifaces.some(iface => iface.family === 'IPv4' && !iface.internal)
+    );
+    wifiView.webContents.send('wifi-status', isConnected ? 'Connected' : 'Disconnected');
+  }, 5000);
 }
 
 app.whenReady().then(async () => {

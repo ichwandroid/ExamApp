@@ -24,8 +24,5 @@
       "owner": "ichwanap",
       "repo": "ExamApp"
     }
-  },
-  "dependencies": {
-    "electron-updater": "^6.6.2"
   }
 }
